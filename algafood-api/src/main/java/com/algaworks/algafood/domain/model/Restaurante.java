@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -28,13 +30,18 @@ public class Restaurante {
 	@Column(name = "taxa_frete")
 	private BigDecimal taxaFrete;
 
+	@ManyToOne
+	@JoinColumn(name = "cozinha_id")
+	private Cozinha cozinha;
+	
 	public Restaurante() {
 	}
 	
-	public Restaurante(Long id, String nome, BigDecimal taxaFrete) {
+	public Restaurante(Long id, String nome, BigDecimal taxaFrete, Cozinha cozinha) {
 		this.id = id;
 		this.nome = nome;
 		this.taxaFrete = taxaFrete;
+		this.cozinha = cozinha;
 	}
 
 }
