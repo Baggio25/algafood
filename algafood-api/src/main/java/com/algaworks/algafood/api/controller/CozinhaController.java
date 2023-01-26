@@ -5,7 +5,9 @@ import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,46 +26,64 @@ public class CozinhaController {
 
 	@Autowired
 	private CozinhaRepository cozinhaRepository;
-	
+
 	@GetMapping
 	public ResponseEntity<List<Cozinha>> listar() {
-		List<Cozinha> lista = cozinhaRepository.findAll(); 
+		List<Cozinha> lista = cozinhaRepository.findAll();
 		return ResponseEntity.ok(lista);
 	}
 
 	@GetMapping("/{id}")
 	public ResponseEntity<Cozinha> buscar(@PathVariable Long id) {
 		Cozinha cozinha = cozinhaRepository.findById(id).get();
-		
-		if(cozinha != null) {
-			return ResponseEntity.ok(cozinha);	
+
+		if (cozinha != null) {
+			return ResponseEntity.ok(cozinha);
 		}
-		
+
 		return ResponseEntity.notFound().build();
 	}
 
 	@PostMapping
 	public ResponseEntity<Cozinha> salvar(@RequestBody Cozinha cozinha) {
 		cozinha = cozinhaRepository.save(cozinha);
-		
+
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(cozinha.getId())
 				.toUri();
-		
+
 		return ResponseEntity.created(uri).body(cozinha);
 	}
-	
+
 	@PutMapping("/{id}")
 	public ResponseEntity<Cozinha> atualizar(@PathVariable Long id, @RequestBody Cozinha cozinha) {
 		Cozinha cozinhaAtual = cozinhaRepository.findById(id).get();
-		
-		if(cozinhaAtual != null) {
+
+		if (cozinhaAtual != null) {
 			BeanUtils.copyProperties(cozinha, cozinhaAtual, "id");
 			cozinhaAtual = cozinhaRepository.save(cozinhaAtual);
-			
+
 			return ResponseEntity.ok(cozinhaAtual);
 		}
-				
-		return ResponseEntity.notFound().build();	
+
+		return ResponseEntity.notFound().build();
 	}
-	
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> excluir(@PathVariable Long id) {
+		try {
+			Cozinha cozinha = cozinhaRepository.findById(id).get();
+
+			if (cozinha != null) {
+				cozinhaRepository.save(cozinha);
+				return ResponseEntity.noContent().build();
+			}
+
+			return ResponseEntity.notFound().build();
+		} catch (DataIntegrityViolationException e) {
+			return ResponseEntity.badRequest().build();
+		}
+
+
+	}
+
 }
