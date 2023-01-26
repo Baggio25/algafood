@@ -19,7 +19,7 @@ public class EstadoController {
 	
 	@GetMapping
 	public List<Estado> listar() {
-		return estadoRepository.findAll();
+		return estadoRepository.listar();
 	}
 	
 }
