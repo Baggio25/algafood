@@ -1,9 +1,12 @@
 package com.algaworks.algafood.api.controller;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import javax.websocket.server.PathParam;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +45,19 @@ public class RestauranteController {
 		return restauranteRepository.findAll();
 	}
 
+	@GetMapping(value = "/por-taxa-frete")
+	public List<Restaurante> listarPorTaxaFrete(@PathParam("taxaInicial") BigDecimal taxaInicial,
+			@PathParam("taxaFinal") BigDecimal taxaFinal) {
+		return restauranteRepository.findByTaxaFreteBetween(taxaInicial, taxaFinal);
+	}
+
+	@GetMapping(value = "/por-nome-cozinha")
+	public List<Restaurante> listarPorTaxaFrete(@PathParam("nome") String nome,
+			@PathParam("cozinhaId") Long cozinhaId) {
+		return restauranteRepository.findByNomeContainingAndCozinhaId(nome, cozinhaId);
+	}
+	
+	
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<Restaurante> buscar(@PathVariable Long id) {
 		Optional<Restaurante> restaurante = restauranteRepository.findById(id);
