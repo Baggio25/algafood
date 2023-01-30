@@ -13,11 +13,15 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import com.algaworks.algafood.domain.model.Restaurante;
+import com.algaworks.algafood.domain.repository.RestauranteRepository;
 import com.algaworks.algafood.domain.repository.RestauranteRepositoryQueries;
+import com.algaworks.algafood.infrastructure.repository.specification.RestauranteSpecs;
 
 @Repository
 public class RestauranteRepositoryImpl implements RestauranteRepositoryQueries {
@@ -25,9 +29,18 @@ public class RestauranteRepositoryImpl implements RestauranteRepositoryQueries {
 	@PersistenceContext
 	private EntityManager entityManager;
 	
+	@Autowired @Lazy
+	private RestauranteRepository restauranteRepository;
+	
 	@Override
 	public List<Restaurante> find(String nome, BigDecimal taxaInicial, BigDecimal taxaFinal){
 		return queryComCriteria(nome, taxaInicial, taxaFinal);		
+	}
+	
+	@Override
+	public List<Restaurante> findComFreteGratis(String nome) {
+		return restauranteRepository.findAll(RestauranteSpecs.comFreteGratis()
+				.and(RestauranteSpecs.comNomeSemelhante(nome)));
 	}
 	
 	//Exemplo com criteria
@@ -85,5 +98,7 @@ public class RestauranteRepositoryImpl implements RestauranteRepositoryQueries {
 		parametros.forEach((chave, valor) -> query.setParameter(chave, valor));
 		return query.getResultList();
 	}
+
+
 	
 }

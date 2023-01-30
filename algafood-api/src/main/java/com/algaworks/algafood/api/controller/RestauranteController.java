@@ -70,8 +70,7 @@ public class RestauranteController {
 	
 	@GetMapping(value = "/com-frete-gratis")
 	public List<Restaurante> listarComFreteGratis(@PathParam("nome") String nome) {
-		return restauranteRepository.findAll(RestauranteSpecs.comFreteGratis()
-				.and(RestauranteSpecs.comNomeSemelhante(nome)));
+		return restauranteRepository.findComFreteGratis(nome);
 	}
 	
 	@GetMapping(value = "/{id}")
