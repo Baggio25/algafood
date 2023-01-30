@@ -51,10 +51,10 @@ public class RestauranteController {
 		return restauranteRepository.findByTaxaFreteBetween(taxaInicial, taxaFinal);
 	}
 
-	@GetMapping(value = "/por-nome-cozinha")
+	@GetMapping(value = "/por-nome-e-cozinha")
 	public List<Restaurante> listarPorTaxaFrete(@PathParam("nome") String nome,
 			@PathParam("cozinhaId") Long cozinhaId) {
-		return restauranteRepository.findByNomeContainingAndCozinhaId(nome, cozinhaId);
+		return restauranteRepository.buscarPorNome(nome, cozinhaId);
 	}
 	
 	
