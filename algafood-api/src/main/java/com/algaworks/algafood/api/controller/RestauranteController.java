@@ -28,8 +28,7 @@ import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.repository.RestauranteRepository;
 import com.algaworks.algafood.domain.service.CadastroRestauranteService;
-import com.algaworks.algafood.infrastructure.repository.specification.RestauranteComFreteGratisSpecification;
-import com.algaworks.algafood.infrastructure.repository.specification.RestauranteComNomeSemelhanteSpecification;
+import com.algaworks.algafood.infrastructure.repository.specification.RestauranteSpecs;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
@@ -50,12 +49,14 @@ public class RestauranteController {
 	@GetMapping(value = "/por-taxa-frete")
 	public List<Restaurante> listarPorTaxaFrete(@PathParam("taxaInicial") BigDecimal taxaInicial,
 			@PathParam("taxaFinal") BigDecimal taxaFinal) {
+		
 		return restauranteRepository.findByTaxaFreteBetween(taxaInicial, taxaFinal);
 	}
 
 	@GetMapping(value = "/por-nome-e-cozinha")
 	public List<Restaurante> listarPorTaxaFrete(@PathParam("nome") String nome,
 			@PathParam("cozinhaId") Long cozinhaId) {
+		
 		return restauranteRepository.buscarPorNome(nome, cozinhaId);
 	}
 
@@ -63,15 +64,14 @@ public class RestauranteController {
 	public List<Restaurante> listarPorNomeFrete(@PathParam("nome") String nome,
 			@PathParam("taxaInicial") BigDecimal taxaInicial,
 			@PathParam("taxaFinal") BigDecimal taxaFinal) {
+		
 		return restauranteRepository.find(nome, taxaInicial, taxaFinal);
 	}
 	
 	@GetMapping(value = "/com-frete-gratis")
 	public List<Restaurante> listarComFreteGratis(@PathParam("nome") String nome) {
-		var comFreteGratis = new RestauranteComFreteGratisSpecification();
-		var comNomSemelhante = new RestauranteComNomeSemelhanteSpecification(nome);
-		
-		return restauranteRepository.findAll(comFreteGratis.and(comNomSemelhante));
+		return restauranteRepository.findAll(RestauranteSpecs.comFreteGratis()
+				.and(RestauranteSpecs.comNomeSemelhante(nome)));
 	}
 	
 	@GetMapping(value = "/{id}")
