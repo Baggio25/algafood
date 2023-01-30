@@ -28,6 +28,8 @@ import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.repository.RestauranteRepository;
 import com.algaworks.algafood.domain.service.CadastroRestauranteService;
+import com.algaworks.algafood.infrastructure.repository.specification.RestauranteComFreteGratisSpecification;
+import com.algaworks.algafood.infrastructure.repository.specification.RestauranteComNomeSemelhanteSpecification;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
@@ -62,6 +64,14 @@ public class RestauranteController {
 			@PathParam("taxaInicial") BigDecimal taxaInicial,
 			@PathParam("taxaFinal") BigDecimal taxaFinal) {
 		return restauranteRepository.find(nome, taxaInicial, taxaFinal);
+	}
+	
+	@GetMapping(value = "/com-frete-gratis")
+	public List<Restaurante> listarComFreteGratis(@PathParam("nome") String nome) {
+		var comFreteGratis = new RestauranteComFreteGratisSpecification();
+		var comNomSemelhante = new RestauranteComNomeSemelhanteSpecification(nome);
+		
+		return restauranteRepository.findAll(comFreteGratis.and(comNomSemelhante));
 	}
 	
 	@GetMapping(value = "/{id}")
