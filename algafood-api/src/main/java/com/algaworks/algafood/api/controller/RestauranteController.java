@@ -28,7 +28,6 @@ import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.repository.RestauranteRepository;
 import com.algaworks.algafood.domain.service.CadastroRestauranteService;
-import com.algaworks.algafood.infrastructure.repository.specification.RestauranteSpecs;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
@@ -71,6 +70,11 @@ public class RestauranteController {
 	@GetMapping(value = "/com-frete-gratis")
 	public List<Restaurante> listarComFreteGratis(@PathParam("nome") String nome) {
 		return restauranteRepository.findComFreteGratis(nome);
+	}
+	
+	@GetMapping(value = "/primeiro")
+	public Optional<Restaurante> restaurantePrimeiro() {
+		return restauranteRepository.buscarPrimeiro();
 	}
 	
 	@GetMapping(value = "/{id}")
