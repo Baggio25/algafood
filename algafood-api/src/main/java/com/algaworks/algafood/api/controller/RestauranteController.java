@@ -56,7 +56,13 @@ public class RestauranteController {
 			@PathParam("cozinhaId") Long cozinhaId) {
 		return restauranteRepository.buscarPorNome(nome, cozinhaId);
 	}
-	
+
+	@GetMapping(value = "/por-nome-e-frete")
+	public List<Restaurante> listarPorNomeFrete(@PathParam("nome") String nome,
+			@PathParam("taxaInicial") BigDecimal taxaInicial,
+			@PathParam("taxaFinal") BigDecimal taxaFinal) {
+		return restauranteRepository.find(nome, taxaInicial, taxaFinal);
+	}
 	
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<Restaurante> buscar(@PathVariable Long id) {
