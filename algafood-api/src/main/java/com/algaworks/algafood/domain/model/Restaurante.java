@@ -70,14 +70,4 @@ public class Restaurante {
 			inverseJoinColumns = @JoinColumn(name = "forma_pagamento_id"))
 	private List<FormaPagamento> formasPagamento = new ArrayList<>();
 	
-	public Restaurante() {
-	}
-	
-	public Restaurante(Long id, String nome, BigDecimal taxaFrete, Cozinha cozinha) {
-		this.id = id;
-		this.nome = nome;
-		this.taxaFrete = taxaFrete;
-		this.cozinha = cozinha;
-	}
-
 }
