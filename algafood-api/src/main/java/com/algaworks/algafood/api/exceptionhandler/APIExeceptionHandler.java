@@ -13,63 +13,61 @@ import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
 
 @ControllerAdvice
-public class APIExeceptionHandler extends ResponseEntityExceptionHandler{
+public class APIExeceptionHandler extends ResponseEntityExceptionHandler {
 
 	@ExceptionHandler(EntidadeNaoEncontradaException.class)
-	public ResponseEntity<?> handleEntidadeNaoEncontradaException(
-						EntidadeNaoEncontradaException ex, WebRequest request){		
-		
+	public ResponseEntity<?> handleEntidadeNaoEncontradaException(EntidadeNaoEncontradaException ex,
+			WebRequest request) {
+
 		HttpStatus status = HttpStatus.NOT_FOUND;
 		ErrorType errorType = ErrorType.ENTIDADE_NAO_ENCONTRADA;
 		String detail = ex.getMessage();
-		
+
 		Error error = createErrorBuilder(status, errorType, detail).build();
 
-		return handleExceptionInternal(ex, error, new HttpHeaders(), 
-				status,  request);
+		return handleExceptionInternal(ex, error, new HttpHeaders(), status, request);
 	}
 
 	@ExceptionHandler(NegocioException.class)
-	public ResponseEntity<?> handleNegocioException(
-						NegocioException ex, WebRequest request){		
-		
-		return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), 
-				HttpStatus.BAD_REQUEST,  request);
+	public ResponseEntity<?> handleNegocioException(NegocioException ex, WebRequest request) {
+
+		HttpStatus status = HttpStatus.BAD_REQUEST;
+		ErrorType errorType = ErrorType.ERRO_NEGOCIO;
+		String detail = ex.getMessage();
+
+		Error error = createErrorBuilder(status, errorType, detail).build();
+
+		return handleExceptionInternal(ex, error, new HttpHeaders(), status, request);
 	}
-	
+
 	@ExceptionHandler(EntidadeEmUsoException.class)
-	public ResponseEntity<?> handleEntidadeEmUsoException(
-						EntidadeEmUsoException ex, WebRequest request){		
-		
-		return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), 
-				HttpStatus.CONFLICT,  request);
+	public ResponseEntity<?> handleEntidadeEmUsoException(EntidadeEmUsoException ex, WebRequest request) {
+
+		HttpStatus status = HttpStatus.CONFLICT;
+		ErrorType errorType = ErrorType.ENTIDADE_EM_USO;
+		String detail = ex.getMessage();
+
+		Error error = createErrorBuilder(status, errorType, detail).build();
+
+		return handleExceptionInternal(ex, error, new HttpHeaders(), status, request);
 	}
-	
+
 	@Override
 	protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,
 			HttpStatus status, WebRequest request) {
-		
-		if(body == null) {
-			body = Error.builder()
-					.title(status.getReasonPhrase())
-					.status(status.value())
-					.build();
+
+		if (body == null) {
+			body = Error.builder().title(status.getReasonPhrase()).status(status.value()).build();
 		} else if (body instanceof String) {
-			body = Error.builder()
-					.title((String) body)
-					.status(status.value())
-					.build();
+			body = Error.builder().title((String) body).status(status.value()).build();
 		}
-		
+
 		return super.handleExceptionInternal(ex, body, headers, status, request);
 	}
-	
+
 	private Error.ErrorBuilder createErrorBuilder(HttpStatus status, ErrorType errorType, String detail) {
-		return Error.builder()
-				.status(status.value())
-				.type(errorType.getUri())
-				.title(errorType.getTitle())
-				.detail(detail);		
+		return Error.builder().status(status.value()).type(errorType.getUri()).title(errorType.getTitle())
+				.detail(detail);
 	}
-	
+
 }
