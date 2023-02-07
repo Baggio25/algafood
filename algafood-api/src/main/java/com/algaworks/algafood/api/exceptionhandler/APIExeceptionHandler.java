@@ -1,7 +1,5 @@
 package com.algaworks.algafood.api.exceptionhandler;
 
-import java.time.LocalDateTime;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,24 +16,30 @@ import com.algaworks.algafood.domain.exception.NegocioException;
 public class APIExeceptionHandler extends ResponseEntityExceptionHandler{
 
 	@ExceptionHandler(EntidadeNaoEncontradaException.class)
-	public ResponseEntity<?> tratarEntidadeNaoEncontradaException(
-			EntidadeNaoEncontradaException ex, WebRequest request){		
+	public ResponseEntity<?> handleEntidadeNaoEncontradaException(
+						EntidadeNaoEncontradaException ex, WebRequest request){		
 		
-		return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), 
-				HttpStatus.NOT_FOUND,  request);
+		HttpStatus status = HttpStatus.NOT_FOUND;
+		ErrorType errorType = ErrorType.ENTIDADE_NAO_ENCONTRADA;
+		String detail = ex.getMessage();
+		
+		Error error = createErrorBuilder(status, errorType, detail).build();
+
+		return handleExceptionInternal(ex, error, new HttpHeaders(), 
+				status,  request);
 	}
 
 	@ExceptionHandler(NegocioException.class)
-	public ResponseEntity<?> tratarNegocioException(
-			NegocioException ex, WebRequest request){		
+	public ResponseEntity<?> handleNegocioException(
+						NegocioException ex, WebRequest request){		
 		
 		return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), 
 				HttpStatus.BAD_REQUEST,  request);
 	}
 	
 	@ExceptionHandler(EntidadeEmUsoException.class)
-	public ResponseEntity<?> tratarEntidadeEmUsoException(
-			EntidadeEmUsoException ex, WebRequest request){		
+	public ResponseEntity<?> handleEntidadeEmUsoException(
+						EntidadeEmUsoException ex, WebRequest request){		
 		
 		return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), 
 				HttpStatus.CONFLICT,  request);
@@ -46,18 +50,26 @@ public class APIExeceptionHandler extends ResponseEntityExceptionHandler{
 			HttpStatus status, WebRequest request) {
 		
 		if(body == null) {
-			body = Erro.builder()
-					.dataHora(LocalDateTime.now())
-					.mensagem(status.getReasonPhrase())
+			body = Error.builder()
+					.title(status.getReasonPhrase())
+					.status(status.value())
 					.build();
 		} else if (body instanceof String) {
-			body = Erro.builder()
-					.dataHora(LocalDateTime.now())
-					.mensagem((String) body)
+			body = Error.builder()
+					.title((String) body)
+					.status(status.value())
 					.build();
 		}
 		
 		return super.handleExceptionInternal(ex, body, headers, status, request);
+	}
+	
+	private Error.ErrorBuilder createErrorBuilder(HttpStatus status, ErrorType errorType, String detail) {
+		return Error.builder()
+				.status(status.value())
+				.type(errorType.getUri())
+				.title(errorType.getTitle())
+				.detail(detail);		
 	}
 	
 }
