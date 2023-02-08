@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.exc.PropertyBindingException;
 @ControllerAdvice
 public class APIExeceptionHandler extends ResponseEntityExceptionHandler {
 
+
 	@Override
 	protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
 			HttpStatus status, WebRequest request) {
@@ -68,6 +69,21 @@ public class APIExeceptionHandler extends ResponseEntityExceptionHandler {
 		return handleExceptionInternal(ex, error, new HttpHeaders(), status, request);
 	}
 
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<Object> handleUncaught(Exception e, WebRequest request) {
+		HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+		ErrorType errorType = ErrorType.ERRO_DE_SISTEMA;
+		String detail = "Ocorreu um erro interno inesperado no sistema. "
+	            + "Tente novamente e se o problema persistir, entre em contato "
+	            + "com o administrador do sistema.";
+		
+		e.printStackTrace();
+		
+		Error error = createErrorBuilder(status, errorType, detail).build();
+		
+		return handleExceptionInternal(e, error, new HttpHeaders(), status, request);
+	}
+	
 	@ExceptionHandler(EntidadeNaoEncontradaException.class)
 	public ResponseEntity<?> handleEntidadeNaoEncontrada(EntidadeNaoEncontradaException ex, WebRequest request) {
 
