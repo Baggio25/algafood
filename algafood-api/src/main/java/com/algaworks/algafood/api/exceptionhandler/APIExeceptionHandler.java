@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
@@ -38,6 +39,17 @@ public class APIExeceptionHandler extends ResponseEntityExceptionHandler {
 	}
 
 	@Override
+	protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers,
+			HttpStatus status, WebRequest request) {
+		
+		ErrorType errorType = ErrorType.RECURSO_NAO_ENCONTRADO;
+		String detail = String.format("O recurso '%s', que você tentou acessar, é inexistente.", ex.getRequestURL());
+		Error error = createErrorBuilder(status, errorType, detail).build();
+		
+		return handleExceptionInternal(ex, error, headers, status, request);
+	}
+	
+	@Override
 	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
 			HttpHeaders headers, HttpStatus status, WebRequest request) {
 
@@ -60,7 +72,7 @@ public class APIExeceptionHandler extends ResponseEntityExceptionHandler {
 	public ResponseEntity<?> handleEntidadeNaoEncontrada(EntidadeNaoEncontradaException ex, WebRequest request) {
 
 		HttpStatus status = HttpStatus.NOT_FOUND;
-		ErrorType errorType = ErrorType.ENTIDADE_NAO_ENCONTRADA;
+		ErrorType errorType = ErrorType.RECURSO_NAO_ENCONTRADO;
 		String detail = ex.getMessage();
 
 		Error error = createErrorBuilder(status, errorType, detail).build();
