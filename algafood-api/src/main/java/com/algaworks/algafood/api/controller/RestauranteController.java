@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import javax.websocket.server.PathParam;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -88,7 +89,7 @@ public class RestauranteController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Restaurante salvar(@RequestBody Restaurante restaurante) {
+	public Restaurante salvar(@Valid @RequestBody Restaurante restaurante) {
 		try {
 			return cadastroRestauranteService.salvar(restaurante);
 		} catch (EntidadeNaoEncontradaException e) {

@@ -1,5 +1,6 @@
 package com.algaworks.algafood.api.exceptionhandler;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -30,6 +32,20 @@ public class APIExeceptionHandler extends ResponseEntityExceptionHandler {
             + "Tente novamente e se o problema persistir, entre em contato "
             + "com o administrador do sistema.";
 
+	@Override
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+			HttpHeaders headers, HttpStatus status, WebRequest request) {
+	
+		ErrorType errorType = ErrorType.DADOS_INVALIDOS;
+		String detail = "Um ou mais campos estão inválidos. Faça o preenchimento correto e tente novamente.";
+		
+		Error error = createErrorBuilder(status, errorType, detail)
+				.userMessage(detail)
+				.build();
+		
+		return handleExceptionInternal(ex, error, headers, status, request);
+	}
+	
 	@Override
 	protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
 			HttpStatus status, WebRequest request) {
@@ -139,11 +155,13 @@ public class APIExeceptionHandler extends ResponseEntityExceptionHandler {
 
 		if (body == null) {
 			body = Error.builder()
+					.timestamp(LocalDateTime.now())
 					.userMessage(MSG_ERRO_GENERICA_USUARIO_FINAL)
 					.title(status.getReasonPhrase())
 					.status(status.value()).build();
 		} else if (body instanceof String) {
 			body = Error.builder()
+					.timestamp(LocalDateTime.now())
 					.userMessage(MSG_ERRO_GENERICA_USUARIO_FINAL)
 					.title((String) body)
 					.status(status.value()).build();
@@ -203,6 +221,7 @@ public class APIExeceptionHandler extends ResponseEntityExceptionHandler {
 
 	private Error.ErrorBuilder createErrorBuilder(HttpStatus status, ErrorType errorType, String detail) {
 		return Error.builder()
+				.timestamp(LocalDateTime.now())
 				.status(status.value())
 				.type(errorType.getUri())
 				.title(errorType.getTitle())

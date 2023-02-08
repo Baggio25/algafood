@@ -17,6 +17,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -37,15 +39,13 @@ public class Restaurante {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	@NotBlank
 	@Column(nullable = false)
 	private String nome;
 	
+	@NotNull
 	@Column(name = "taxa_frete", nullable = false)
 	private BigDecimal taxaFrete;
-
-	@JsonIgnore
-	@Embedded
-	private Endereco endereco;
 	
 	@CreationTimestamp
 	@Column(name = "data_cadastro", nullable = false, columnDefinition = "datetime")
@@ -55,10 +55,14 @@ public class Restaurante {
 	@Column(name = "data_atualizacao", nullable = false, columnDefinition = "datetime")
 	private LocalDateTime dataAtualizacao;
 
-	//@JsonIgnore
+	@NotNull
 	@ManyToOne
 	@JoinColumn(name = "cozinha_id", nullable = false)
 	private Cozinha cozinha;
+	
+	@JsonIgnore
+	@Embedded
+	private Endereco endereco;
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "restaurante")
