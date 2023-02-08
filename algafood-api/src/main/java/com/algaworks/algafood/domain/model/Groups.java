@@ -2,6 +2,6 @@ package com.algaworks.algafood.domain.model;
 
 public interface Groups {
 
-	public interface CadastroRestaurante {}
+	public interface CozinhaID {}
 	
 }

@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
 @Table(name = "cozinha")
 public class Cozinha {
 
-	@NotNull(groups = Groups.CadastroRestaurante.class)
+	@NotNull(groups = Groups.CozinhaID.class)
 	@EqualsAndHashCode.Include
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
