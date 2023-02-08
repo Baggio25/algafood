@@ -1,5 +1,8 @@
 package com.algaworks.algafood.api.exceptionhandler;
 
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 @ControllerAdvice
 public class APIExeceptionHandler extends ResponseEntityExceptionHandler {
@@ -19,14 +23,20 @@ public class APIExeceptionHandler extends ResponseEntityExceptionHandler {
 	@Override
 	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
 			HttpHeaders headers, HttpStatus status, WebRequest request) {
+		Throwable rootCause = ExceptionUtils.getRootCause(ex);
+		
+		if(rootCause instanceof InvalidFormatException) {
+			return handleInvalidFormatException((InvalidFormatException) rootCause, headers, status, request);
+		}
 		
 		ErrorType errorType = ErrorType.MENSAGEM_INCOMPREENSIVEL;
 		String detail = "O corpo da requisição está inválido. Verifique erro de sintaxe.";
 
 		Error error = createErrorBuilder(status, errorType, detail).build();
-
+		
 		return handleExceptionInternal(ex, error, new HttpHeaders(), status, request);
 	}
+
 
 	@ExceptionHandler(EntidadeNaoEncontradaException.class)
 	public ResponseEntity<?> handleEntidadeNaoEncontradaException(EntidadeNaoEncontradaException ex,
@@ -83,4 +93,18 @@ public class APIExeceptionHandler extends ResponseEntityExceptionHandler {
 				.detail(detail);
 	}
 
+	private ResponseEntity<Object> handleInvalidFormatException(InvalidFormatException ex, HttpHeaders headers,
+			HttpStatus status, WebRequest request) {
+		String path = ex.getPath().stream()
+				.map(ref -> ref.getFieldName())
+				.collect(Collectors.joining(".")); //Ex.: cozinha.id
+		
+		ErrorType errorType = ErrorType.MENSAGEM_INCOMPREENSIVEL;
+		String detail = String.format("A propriedade '%s' recebeu o valor '%s', "
+				+ "que é de um tipo inválido. Corrija e informe um valor compatível com o tipo '%s'.", 
+				path, ex.getValue(), ex.getTargetType().getSimpleName());
+		Error error = createErrorBuilder(status, errorType, detail).build();;
+		
+		return handleExceptionInternal(ex, error, headers, status, request);
+	}
 }
