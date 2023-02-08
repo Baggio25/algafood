@@ -17,8 +17,10 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -43,7 +45,7 @@ public class Restaurante {
 	@Column(nullable = false)
 	private String nome;
 	
-	@NotNull
+	@PositiveOrZero
 	@Column(name = "taxa_frete", nullable = false)
 	private BigDecimal taxaFrete;
 	
@@ -56,6 +58,7 @@ public class Restaurante {
 	private LocalDateTime dataAtualizacao;
 
 	@NotNull
+	@Valid //valida as propriedades de Cozinha a partir de Restaurante
 	@ManyToOne
 	@JoinColumn(name = "cozinha_id", nullable = false)
 	private Cozinha cozinha;
