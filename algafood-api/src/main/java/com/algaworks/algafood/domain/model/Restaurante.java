@@ -30,6 +30,7 @@ import com.algaworks.algafood.core.validation.Groups;
 import com.algaworks.algafood.core.validation.TaxaFrete;
 import com.algaworks.algafood.core.validation.ValorZeroIncluiDescricao;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -65,7 +66,8 @@ public class Restaurante {
 	@Column(name = "data_atualizacao", nullable = false, columnDefinition = "datetime")
 	private LocalDateTime dataAtualizacao;
 
-	@Valid //valida as propriedades de Cozinha a partir de Restaurante
+	@JsonIgnoreProperties( value = "nome", allowGetters = true)
+	@Valid
 	@ConvertGroup(from = Default.class, to = Groups.CozinhaID.class)
 	@NotNull
 	@ManyToOne
