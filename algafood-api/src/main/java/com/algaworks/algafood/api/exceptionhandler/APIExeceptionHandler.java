@@ -22,6 +22,8 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import com.algaworks.algafood.core.validation.exception.ValidacaoException;
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
@@ -37,87 +39,14 @@ public class APIExeceptionHandler extends ResponseEntityExceptionHandler {
             + "com o administrador do sistema.";
 
 	@Autowired
-	private MessageSource messageSource;
+	private MessageSource messageSource;	
+
+	@ExceptionHandler({ ValidacaoException.class })
+	public ResponseEntity<Object> handleValidacaoException(ValidacaoException ex, WebRequest request) {
+	    return handleValidationInternal(ex, ex.getBindingResult(), new HttpHeaders(), 
+	            HttpStatus.BAD_REQUEST, request);
+	}  
 	
-	@Override
-	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-			HttpHeaders headers, HttpStatus status, WebRequest request) {
-	
-		APIErrorType apiErrorType = APIErrorType.DADOS_INVALIDOS;
-		String detail = "Um ou mais campos estão inválidos. Faça o preenchimento correto e tente novamente.";
-		BindingResult bindingResult = ex.getBindingResult();
-		
-		List<APIError.Object> problemObjects = bindingResult.getAllErrors().stream()
-				.map(objectError -> { 
-					String message = messageSource.getMessage(objectError, LocaleContextHolder.getLocale());
-					
-					String name = objectError.getObjectName();
-					
-					if(objectError instanceof FieldError) {
-						name = ((FieldError) objectError).getField();
-					}
-					
-					return APIError.Object.builder()
-						.name(name)
-						.userMessage(message)
-						.build();
-				})
-				.collect(Collectors.toList());
-		
-		APIError apiError = createErrorBuilder(status, apiErrorType, detail)
-				.userMessage(detail)
-				.objects(problemObjects)
-				.build();
-		
-		return handleExceptionInternal(ex, apiError, headers, status, request);
-	}
-	
-	@Override
-	protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
-			HttpStatus status, WebRequest request) {
-
-		if (ex instanceof MethodArgumentTypeMismatchException) {
-			return handleMethodArgumentTypeMismatchException((MethodArgumentTypeMismatchException) ex, headers, status,
-					request);
-		}
-
-		return super.handleTypeMismatch(ex, headers, status, request);
-	}
-
-	@Override
-	protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers,
-			HttpStatus status, WebRequest request) {
-		
-		APIErrorType apiErrorType = APIErrorType.RECURSO_NAO_ENCONTRADO;
-		String detail = String.format("O recurso '%s', que você tentou acessar, é inexistente.", ex.getRequestURL());
-		APIError apiError = createErrorBuilder(status, apiErrorType, detail)
-				.userMessage(detail)
-				.build();
-		
-		return handleExceptionInternal(ex, apiError, headers, status, request);
-	}
-	
-	@Override
-	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
-			HttpHeaders headers, HttpStatus status, WebRequest request) {
-
-		Throwable rootCause = ExceptionUtils.getRootCause(ex);
-
-		if (rootCause instanceof InvalidFormatException) {
-			return handleInvalidFormat((InvalidFormatException) rootCause, headers, status, request);
-		} else if (rootCause instanceof PropertyBindingException) {
-			return handlePropertyBinding((PropertyBindingException) rootCause, headers, status, request);
-		}
-
-		APIErrorType apiErrorType = APIErrorType.MENSAGEM_INCOMPREENSIVEL;
-		String detail = "O corpo da requisição está inválido. Verifique erro de sintaxe.";
-		APIError apiError = createErrorBuilder(status, apiErrorType, detail)
-				.userMessage(MSG_ERRO_GENERICA_USUARIO_FINAL)
-				.build();
-
-		return handleExceptionInternal(ex, apiError, new HttpHeaders(), status, request);
-	}
-
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<Object> handleUncaught(Exception e, WebRequest request) {
 		HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -174,6 +103,58 @@ public class APIExeceptionHandler extends ResponseEntityExceptionHandler {
 
 		return handleExceptionInternal(ex, apiError, new HttpHeaders(), status, request);
 	}
+	
+	@Override
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+	        HttpHeaders headers, HttpStatus status, WebRequest request) {
+	    return handleValidationInternal(ex, ex.getBindingResult(), headers, status, request);
+	}
+	
+	@Override
+	protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
+			HttpStatus status, WebRequest request) {
+
+		if (ex instanceof MethodArgumentTypeMismatchException) {
+			return handleMethodArgumentTypeMismatchException((MethodArgumentTypeMismatchException) ex, headers, status,
+					request);
+		}
+
+		return super.handleTypeMismatch(ex, headers, status, request);
+	}
+
+	@Override
+	protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers,
+			HttpStatus status, WebRequest request) {
+		
+		APIErrorType apiErrorType = APIErrorType.RECURSO_NAO_ENCONTRADO;
+		String detail = String.format("O recurso '%s', que você tentou acessar, é inexistente.", ex.getRequestURL());
+		APIError apiError = createErrorBuilder(status, apiErrorType, detail)
+				.userMessage(detail)
+				.build();
+		
+		return handleExceptionInternal(ex, apiError, headers, status, request);
+	}
+	
+	@Override
+	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
+			HttpHeaders headers, HttpStatus status, WebRequest request) {
+
+		Throwable rootCause = ExceptionUtils.getRootCause(ex);
+
+		if (rootCause instanceof InvalidFormatException) {
+			return handleInvalidFormat((InvalidFormatException) rootCause, headers, status, request);
+		} else if (rootCause instanceof PropertyBindingException) {
+			return handlePropertyBinding((PropertyBindingException) rootCause, headers, status, request);
+		}
+
+		APIErrorType apiErrorType = APIErrorType.MENSAGEM_INCOMPREENSIVEL;
+		String detail = "O corpo da requisição está inválido. Verifique erro de sintaxe.";
+		APIError apiError = createErrorBuilder(status, apiErrorType, detail)
+				.userMessage(MSG_ERRO_GENERICA_USUARIO_FINAL)
+				.build();
+
+		return handleExceptionInternal(ex, apiError, new HttpHeaders(), status, request);
+	}
 
 	@Override
 	protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,
@@ -194,6 +175,37 @@ public class APIExeceptionHandler extends ResponseEntityExceptionHandler {
 		}
 
 		return super.handleExceptionInternal(ex, body, headers, status, request);
+	}
+	
+	private ResponseEntity<Object> handleValidationInternal(Exception ex, BindingResult bindingResult, HttpHeaders headers,
+			HttpStatus status, WebRequest request) {
+		        
+	    APIErrorType problemType = APIErrorType.DADOS_INVALIDOS;
+	    String detail = "Um ou mais campos estão inválidos. Faça o preenchimento correto e tente novamente.";
+	    
+	    List<APIError.Object> problemObjects = bindingResult.getAllErrors().stream()
+	            .map(objectError -> {
+	                String message = messageSource.getMessage(objectError, LocaleContextHolder.getLocale());
+	                
+	                String name = objectError.getObjectName();
+	                
+	                if (objectError instanceof FieldError) {
+	                    name = ((FieldError) objectError).getField();
+	                }
+	                
+	                return APIError.Object.builder()
+	                    .name(name)
+	                    .userMessage(message)
+	                    .build();
+	            })
+	            .collect(Collectors.toList());
+	    
+	    APIError apiError = createErrorBuilder(status, problemType, detail)
+	        .userMessage(detail)
+	        .objects(problemObjects)
+	        .build();
+	    
+	    return handleExceptionInternal(ex, apiError, headers, status, request);
 	}
 
 	private ResponseEntity<Object> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex,
