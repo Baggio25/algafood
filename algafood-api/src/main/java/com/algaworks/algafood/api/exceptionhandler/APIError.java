@@ -27,11 +27,11 @@ public class APIError {
 	private String detail;
 	private String userMessage;
 	
-	private List<Field> fields;
+	private List<Object> objects;
 
 	@Getter
 	@Builder
-	public static class Field {
+	public static class Object {
 		private String name;
 		private String userMessage;
 	}
