@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.algaworks.algafood.api.model.CozinhaModel;
+import com.algaworks.algafood.api.model.RestauranteModel;
 import com.algaworks.algafood.core.validation.exception.ValidacaoException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
@@ -53,65 +55,66 @@ public class RestauranteController {
 	private SmartValidator validator;
 
 	@GetMapping
-	public List<Restaurante> listar() {
-		return restauranteRepository.findAll();
+	public List<RestauranteModel> listar() {
+		return toCollectionModel(restauranteRepository.findAll());
 	}
 
 	@GetMapping(value = "/por-taxa-frete")
-	public List<Restaurante> listarPorTaxaFrete(@PathParam("taxaInicial") BigDecimal taxaInicial,
+	public List<RestauranteModel> listarPorTaxaFrete(@PathParam("taxaInicial") BigDecimal taxaInicial,
 			@PathParam("taxaFinal") BigDecimal taxaFinal) {
 
-		return restauranteRepository.findByTaxaFreteBetween(taxaInicial, taxaFinal);
+		return toCollectionModel(restauranteRepository.findByTaxaFreteBetween(taxaInicial, taxaFinal));
 	}
 
 	@GetMapping(value = "/por-nome-e-cozinha")
-	public List<Restaurante> listarPorTaxaFrete(@PathParam("nome") String nome,
+	public List<RestauranteModel> listarPorTaxaFrete(@PathParam("nome") String nome,
 			@PathParam("cozinhaId") Long cozinhaId) {
 
-		return restauranteRepository.buscarPorNome(nome, cozinhaId);
+		return toCollectionModel(restauranteRepository.buscarPorNome(nome, cozinhaId));
 	}
 
 	@GetMapping(value = "/por-nome-e-frete")
-	public List<Restaurante> listarPorNomeFrete(@PathParam("nome") String nome,
+	public List<RestauranteModel> listarPorNomeFrete(@PathParam("nome") String nome,
 			@PathParam("taxaInicial") BigDecimal taxaInicial, @PathParam("taxaFinal") BigDecimal taxaFinal) {
 
-		return restauranteRepository.find(nome, taxaInicial, taxaFinal);
+		return toCollectionModel(restauranteRepository.find(nome, taxaInicial, taxaFinal));
 	}
 
 	@GetMapping(value = "/com-frete-gratis")
-	public List<Restaurante> listarComFreteGratis(@PathParam("nome") String nome) {
-		return restauranteRepository.findComFreteGratis(nome);
+	public List<RestauranteModel> listarComFreteGratis(@PathParam("nome") String nome) {
+		return toCollectionModel(restauranteRepository.findComFreteGratis(nome));
 	}
 
 	@GetMapping(value = "/primeiro")
-	public Optional<Restaurante> restaurantePrimeiro() {
-		return restauranteRepository.buscarPrimeiro();
+	public RestauranteModel restaurantePrimeiro() {
+		return toModel(cadastroRestauranteService.buscarPrimeiro());
 	}
 
 	@GetMapping(value = "/{id}")
-	public Restaurante buscar(@PathVariable Long id) {
-		return cadastroRestauranteService.buscar(id);
+	public RestauranteModel buscar(@PathVariable Long id) {
+		Restaurante restaurante = cadastroRestauranteService.buscar(id);
+		return toModel(restaurante);
 	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Restaurante salvar(@Valid @RequestBody Restaurante restaurante) {
+	public RestauranteModel salvar(@Valid @RequestBody Restaurante restaurante) {
 		try {
-			return cadastroRestauranteService.salvar(restaurante);
+			return toModel(cadastroRestauranteService.salvar(restaurante));
 		} catch (EntidadeNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage());
 		}
 	}
 
 	@PutMapping(value = "/{id}")
-	public Restaurante atualizar(@PathVariable Long id, @Valid @RequestBody Restaurante restaurante) {
+	public RestauranteModel atualizar(@PathVariable Long id, @Valid @RequestBody Restaurante restaurante) {
 		Restaurante restauranteAtual = cadastroRestauranteService.buscar(id);
 
 		BeanUtils.copyProperties(restaurante, restauranteAtual, "id", "formasPagamento", "endereco", "dataCadastro",
 				"produtos");
 
 		try {
-			return cadastroRestauranteService.salvar(restauranteAtual);
+			return toModel(cadastroRestauranteService.salvar(restauranteAtual));
 		} catch (EntidadeNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage());
 		}
@@ -124,7 +127,7 @@ public class RestauranteController {
 	}
 
 	@PatchMapping("/{id}")
-	public Restaurante atualizarParcial(@PathVariable Long id, 
+	public RestauranteModel atualizarParcial(@PathVariable Long id, 
 			@RequestBody Map<String, Object> campos, HttpServletRequest request) {
 		Restaurante restauranteAtual = cadastroRestauranteService.buscar(id);
 
@@ -166,6 +169,27 @@ public class RestauranteController {
 			Throwable rootCause = ExceptionUtils.getRootCause(e);
 			throw new HttpMessageNotReadableException(e.getMessage(), rootCause, serverHttpRequest);
 		}
+	}
+
+	private RestauranteModel toModel(Restaurante restaurante) {
+		CozinhaModel cozinhaModel = new CozinhaModel();
+		cozinhaModel.setId(restaurante.getCozinha().getId());
+		cozinhaModel.setNome(restaurante.getCozinha().getNome());
+		
+		RestauranteModel restauranteModel = new RestauranteModel();
+		restauranteModel.setId(restaurante.getId());
+		restauranteModel.setNome(restaurante.getNome());
+		restauranteModel.setTaxaFrete(restaurante.getTaxaFrete());
+		restauranteModel.setCozinha(cozinhaModel);
+		return restauranteModel;
+	}
+	
+
+	private List<RestauranteModel> toCollectionModel(List<Restaurante> restaurantes) {
+		return restaurantes
+				.stream()
+				.map(restaurante -> toModel(restaurante))
+				.collect(Collectors.toList()); 
 	}
 
 }

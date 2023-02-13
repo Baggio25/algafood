@@ -49,4 +49,8 @@ public class CadastroRestauranteService {
 				.orElseThrow(() -> new RestauranteNaoEncontradoException(id));
 	}
 	
+	public Restaurante buscarPrimeiro() {
+		return restauranteRepository.buscarPrimeiro()
+				.orElseThrow(() -> new RestauranteNaoEncontradoException("Não há restaurante para exibir.")); 
+	}
 }
