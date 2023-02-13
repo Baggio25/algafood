@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.algaworks.algafood.api.model.CozinhaModel;
 import com.algaworks.algafood.api.model.RestauranteModel;
+import com.algaworks.algafood.api.model.input.RestauranteInput;
 import com.algaworks.algafood.core.validation.exception.ValidacaoException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
@@ -98,7 +99,7 @@ public class RestauranteController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public RestauranteModel salvar(@Valid @RequestBody Restaurante restaurante) {
+	public RestauranteModel salvar(@Valid @RequestBody RestauranteInput restaurante) {
 		try {
 			return toModel(cadastroRestauranteService.salvar(restaurante));
 		} catch (EntidadeNaoEncontradaException e) {
