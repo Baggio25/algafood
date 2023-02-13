@@ -46,13 +46,9 @@ public class Restaurante {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@NotBlank
 	@Column(nullable = false)
 	private String nome;
 	
-	@NotNull
-	//@PositiveOrZero
-	@TaxaFrete
 	@Column(name = "taxa_frete", nullable = false)
 	private BigDecimal taxaFrete;
 	
@@ -64,9 +60,6 @@ public class Restaurante {
 	@Column(name = "data_atualizacao", nullable = false, columnDefinition = "datetime")
 	private OffsetDateTime dataAtualizacao;
 
-	@Valid
-	@ConvertGroup(from = Default.class, to = Groups.CozinhaID.class)
-	@NotNull
 	@ManyToOne
 	@JoinColumn(name = "cozinha_id", nullable = false)
 	private Cozinha cozinha;
