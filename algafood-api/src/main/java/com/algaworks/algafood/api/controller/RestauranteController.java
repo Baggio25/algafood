@@ -120,6 +120,4 @@ public class RestauranteController {
 		cadastroRestauranteService.excluir(id);
 	}
 
-
-
 }
