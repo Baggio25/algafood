@@ -6,7 +6,6 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -101,11 +100,9 @@ public class RestauranteController {
 	@PutMapping(value = "/{id}")
 	public RestauranteModel atualizar(@PathVariable Long id, 
 			@Valid @RequestBody RestauranteInput restauranteInput) {
-		Restaurante restaurante = restauranteInputDisassembler.toDomainObject(restauranteInput);
+		
 		Restaurante restauranteAtual = cadastroRestauranteService.buscar(id);
-
-		BeanUtils.copyProperties(restaurante, restauranteAtual, "id", "formasPagamento", "endereco", "dataCadastro",
-				"produtos");
+		restauranteInputDisassembler.copyToDomainObject(restauranteInput, restauranteAtual);
 
 		try {
 			return restauranteModelAssembler.toModel(cadastroRestauranteService.salvar(restauranteAtual));
