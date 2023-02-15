@@ -28,6 +28,7 @@ public class CadastroCozinhaService {
 	public void excluir(Long id) {
 		try {
 			cozinhaRepository.deleteById(id);	
+			cozinhaRepository.flush(); //descarrega todas as operações, necessário pois foi utilizado @Transactional
 		} catch (EmptyResultDataAccessException e) {
 			throw new CozinhaNaoEncontradaException(id);
 		} catch (DataIntegrityViolationException e) {

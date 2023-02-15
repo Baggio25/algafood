@@ -36,6 +36,7 @@ public class CadastroRestauranteService {
 	public void excluir(Long id) {
 		try {
 			restauranteRepository.deleteById(id);
+			restauranteRepository.flush(); //descarrega todas as operações, necessário pois foi utilizado @Transactional
 		} catch (EmptyResultDataAccessException e) {
 			throw new RestauranteNaoEncontradoException(id);
 		} catch (DataIntegrityViolationException e) {

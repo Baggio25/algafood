@@ -17,7 +17,7 @@ public enum APIErrorType {
 	private String uri;
 	
 	private APIErrorType(String path, String title) {
-		this.uri = "https://alfafood.com.br" + path;
+		this.uri = "https://algafood.com.br" + path;
 		this.title = title;
 	}
 	
