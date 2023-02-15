@@ -45,6 +45,18 @@ public class CadastroRestauranteService {
 		}		
 	}
 
+	@Transactional
+	public void ativar(Long restauranteId) {
+		Restaurante restauranteAtual = buscar(restauranteId);
+		restauranteAtual.ativar();
+	}
+
+	@Transactional
+	public void inativar(Long restauranteId) {
+		Restaurante restauranteAtual = buscar(restauranteId);
+		restauranteAtual.inativar();
+	}
+	
 	public Restaurante buscar(Long id) {
 		return restauranteRepository.findById(id)
 				.orElseThrow(() -> new RestauranteNaoEncontradoException(id));
@@ -54,4 +66,5 @@ public class CadastroRestauranteService {
 		return restauranteRepository.buscarPrimeiro()
 				.orElseThrow(() -> new RestauranteNaoEncontradoException("Não há restaurante para exibir.")); 
 	}
+
 }

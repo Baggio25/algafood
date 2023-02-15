@@ -110,7 +110,20 @@ public class RestauranteController {
 			throw new NegocioException(e.getMessage());
 		}
 	}
+	
+	@PutMapping(value = "/{id}/ativo")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void ativar(@PathVariable Long id) {
+		cadastroRestauranteService.ativar(id);
+	}
 
+	@DeleteMapping(value = "/{id}/ativo")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void inativar(@PathVariable Long id) {
+		cadastroRestauranteService.inativar(id);
+	}
+
+	
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void remover(@PathVariable Long id) {
