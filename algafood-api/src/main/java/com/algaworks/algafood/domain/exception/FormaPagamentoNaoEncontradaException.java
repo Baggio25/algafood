@@ -2,7 +2,9 @@ package com.algaworks.algafood.domain.exception;
 
 public class FormaPagamentoNaoEncontradaException extends EntidadeNaoEncontradaException {
 
-    public FormaPagamentoNaoEncontradaException(String msg) {
+	private static final long serialVersionUID = 1L;
+
+	public FormaPagamentoNaoEncontradaException(String msg) {
         super(msg);
     }
 
