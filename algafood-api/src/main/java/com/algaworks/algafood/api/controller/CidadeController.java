@@ -67,6 +67,8 @@ public class CidadeController {
 			Cidade cidadeAtual = cadastroCidadeService.buscar(id);
 			
 			cidadeInputDisassembler.copyToDomainObject(cidadeInput, cidadeAtual);
+
+			cidadeAtual = cadastroCidadeService.salvar(cidadeAtual);
 			
 			return cidadeModelAssembler.toModel(cidadeAtual);			
 		} catch (EstadoNaoEncontradoException e) {

@@ -100,11 +100,10 @@ public class RestauranteController {
 	@PutMapping(value = "/{id}")
 	public RestauranteModel atualizar(@PathVariable Long id, 
 			@Valid @RequestBody RestauranteInput restauranteInput) {
-		
-		Restaurante restauranteAtual = cadastroRestauranteService.buscar(id);
-		restauranteInputDisassembler.copyToDomainObject(restauranteInput, restauranteAtual);
-
 		try {
+			Restaurante restauranteAtual = cadastroRestauranteService.buscar(id);
+			restauranteInputDisassembler.copyToDomainObject(restauranteInput, restauranteAtual);
+
 			return restauranteModelAssembler.toModel(cadastroRestauranteService.salvar(restauranteAtual));
 		} catch (EntidadeNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage());
