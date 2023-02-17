@@ -22,7 +22,7 @@ public class CadastroUsuarioService {
 	    
 	    @Transactional
 	    public void alterarSenha(Long usuarioId, String senhaAtual, String novaSenha) {
-	        Usuario usuario = buscarOuFalhar(usuarioId);
+	        Usuario usuario = buscar(usuarioId);
 	        
 	        if (usuario.senhaNaoCoincideCom(senhaAtual)) {
 	            throw new NegocioException("Senha atual informada não coincide com a senha do usuário.");
@@ -31,7 +31,7 @@ public class CadastroUsuarioService {
 	        usuario.setSenha(novaSenha);
 	    }
 
-	    public Usuario buscarOuFalhar(Long usuarioId) {
+	    public Usuario buscar(Long usuarioId) {
 	        return usuarioRepository.findById(usuarioId)
 	            .orElseThrow(() -> new UsuarioNaoEncontradoException(usuarioId));
 	    }            
