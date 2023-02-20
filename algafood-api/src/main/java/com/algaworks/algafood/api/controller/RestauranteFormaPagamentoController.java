@@ -27,7 +27,6 @@ public class RestauranteFormaPagamentoController {
 	@Autowired
 	private FormaPagamentoAssembler formaPagamentoAssembler;
 	
-	//Faz a associação manualmente entre Restaurante e formas de pagamento
 	@GetMapping
 	public List<FormaPagamentoModel> listar(@PathVariable Long restauranteId) {
 		Restaurante restaurante = cadastroRestauranteService.buscar(restauranteId);
