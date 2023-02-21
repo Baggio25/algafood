@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class FormaPagamentoAssembler {
+public class FormaPagamentoModelAssembler {
 
     @Autowired
     private ModelMapper modelMapper;

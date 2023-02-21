@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.algaworks.algafood.api.assembler.FormaPagamentoAssembler;
+import com.algaworks.algafood.api.assembler.FormaPagamentoModelAssembler;
 import com.algaworks.algafood.api.model.FormaPagamentoModel;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.service.CadastroRestauranteService;
@@ -25,13 +25,13 @@ public class RestauranteFormaPagamentoController {
 	private CadastroRestauranteService cadastroRestauranteService;
 	
 	@Autowired
-	private FormaPagamentoAssembler formaPagamentoAssembler;
+	private FormaPagamentoModelAssembler formaPagamentoModelAssembler;
 	
 	@GetMapping
 	public List<FormaPagamentoModel> listar(@PathVariable Long restauranteId) {
 		Restaurante restaurante = cadastroRestauranteService.buscar(restauranteId);
 		
-		return formaPagamentoAssembler.toCollectionModel(restaurante.getFormasPagamento()) ;
+		return formaPagamentoModelAssembler.toCollectionModel(restaurante.getFormasPagamento()) ;
 	}
 
 	//Faz a desassociação manualmente entre Restaurante e formas de pagamento

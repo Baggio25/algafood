@@ -1,6 +1,6 @@
 package com.algaworks.algafood.api.controller;
 
-import com.algaworks.algafood.api.assembler.FormaPagamentoAssembler;
+import com.algaworks.algafood.api.assembler.FormaPagamentoModelAssembler;
 import com.algaworks.algafood.api.assembler.FormaPagamentoInputDisassembler;
 import com.algaworks.algafood.api.model.FormaPagamentoModel;
 import com.algaworks.algafood.api.model.input.FormaPagamentoInput;
@@ -27,7 +27,7 @@ public class FormaPagamentoController {
     private CadastroFormaPagamentoService cadastroFormaPagamentoService;
 
     @Autowired
-    private FormaPagamentoAssembler formaPagamentoAssembler;
+    private FormaPagamentoModelAssembler formaPagamentoAssembler;
 
     @Autowired
     private FormaPagamentoInputDisassembler formaPagamentoInputDisassembler;
