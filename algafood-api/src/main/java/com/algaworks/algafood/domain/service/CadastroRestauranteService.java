@@ -12,6 +12,7 @@ import com.algaworks.algafood.domain.model.Cidade;
 import com.algaworks.algafood.domain.model.Cozinha;
 import com.algaworks.algafood.domain.model.FormaPagamento;
 import com.algaworks.algafood.domain.model.Restaurante;
+import com.algaworks.algafood.domain.model.Usuario;
 import com.algaworks.algafood.domain.repository.RestauranteRepository;
 
 @Service
@@ -30,6 +31,9 @@ public class CadastroRestauranteService {
 
 	@Autowired
 	private CadastroFormaPagamentoService cadastroFormaPagamentoService;
+	
+	@Autowired
+	private CadastroUsuarioService cadastroUsuarioService;
 	
 	@Transactional
 	public Restaurante salvar(Restaurante restaurante) {
@@ -107,5 +111,20 @@ public class CadastroRestauranteService {
 		
 		restaurante.removerFormaPagamento(formaPagamento);
 	}
+	
+	@Transactional
+	public void associarResponsavel(Long restauranteId, Long usuarioId) {
+		Restaurante restaurante = buscar(restauranteId);
+		Usuario usuario = cadastroUsuarioService.buscar(usuarioId);
+		
+		restaurante.adicionarResponsaveis(usuario);
+	}
 
+	@Transactional
+	public void desassociarResponsavel(Long restauranteId, Long usuarioId) {
+		Restaurante restaurante = buscar(restauranteId);
+		Usuario usuario = cadastroUsuarioService.buscar(usuarioId);
+		
+		restaurante.removerResponsaveis(usuario);
+	}
 }
