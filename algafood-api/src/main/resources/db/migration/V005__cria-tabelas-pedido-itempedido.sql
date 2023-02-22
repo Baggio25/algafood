@@ -36,7 +36,7 @@ alter table pedido add constraint fk_pedido_cliente
 foreign key (cliente_id) references usuario (id);
 
 create table item_pedido (
-	id bigint not null,
+	id bigint not null auto_increment,
 	quantidade smallint(6) not null,
 	preco_unitario decimal(10,2) not null,
    preco_total decimal(10,2) not null,
