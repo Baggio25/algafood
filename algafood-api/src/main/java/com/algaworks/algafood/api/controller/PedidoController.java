@@ -43,7 +43,7 @@ public class PedidoController {
 
 	@Autowired
 	private PedidoInputDisassembler pedidoInputDisassembler;
-	
+
 	@GetMapping
 	public List<PedidoResumoModel> listar() {
 		List<Pedido> pedidos = pedidoRepository.findAll();
