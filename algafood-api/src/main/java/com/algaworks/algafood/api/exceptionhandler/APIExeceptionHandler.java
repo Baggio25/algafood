@@ -13,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -40,6 +41,8 @@ public class APIExeceptionHandler extends ResponseEntityExceptionHandler {
 
 	@Autowired
 	private MessageSource messageSource;	
+	
+
 
 	@ExceptionHandler({ ValidacaoException.class })
 	public ResponseEntity<Object> handleValidacaoException(ValidacaoException ex, WebRequest request) {
@@ -102,6 +105,13 @@ public class APIExeceptionHandler extends ResponseEntityExceptionHandler {
 				.build();
 
 		return handleExceptionInternal(ex, apiError, new HttpHeaders(), status, request);
+	}
+	
+	@Override
+	protected ResponseEntity<Object> handleBindException(BindException ex, HttpHeaders headers, HttpStatus status,
+			WebRequest request) {
+
+		return handleValidationInternal(ex, ex.getBindingResult(), headers, status, request);
 	}
 	
 	@Override
@@ -177,11 +187,13 @@ public class APIExeceptionHandler extends ResponseEntityExceptionHandler {
 		return super.handleExceptionInternal(ex, body, headers, status, request);
 	}
 	
-	private ResponseEntity<Object> handleValidationInternal(Exception ex, BindingResult bindingResult, HttpHeaders headers,
+	private ResponseEntity<Object> handleValidationInternal(Exception ex, 
+			BindingResult bindingResult, HttpHeaders headers,
 			HttpStatus status, WebRequest request) {
 		        
 	    APIErrorType problemType = APIErrorType.DADOS_INVALIDOS;
-	    String detail = "Um ou mais campos estão inválidos. Faça o preenchimento correto e tente novamente.";
+	    String detail = "Um ou mais campos estão inválidos."
+	    		+ " Faça o preenchimento correto e tente novamente.";
 	    
 	    List<APIError.Object> problemObjects = bindingResult.getAllErrors().stream()
 	            .map(objectError -> {
