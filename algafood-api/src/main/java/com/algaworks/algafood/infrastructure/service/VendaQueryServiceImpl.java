@@ -25,23 +25,35 @@ public class VendaQueryServiceImpl implements VendaQueryService{
 	/**
 	 * Com SQL Ficaria:
 	 * 
-	 *  SELECT DATE(p.data_criacao) AS data_criacao,
+	 *  SELECT DATE(CONVERT_TZ(p.data_criacao, '+00:00', '-03:00')) AS data_criacao,
 	 *  	   COUNT(p.id) AS total_vendas,
 	 *  	   SUM(p.valor_total) as total_faturado
 	 *  FROM pedido p
 	 *  WHERE
-	 *  	   restaurante_id = :restauranteId AND
-	 *  	   data_criacao between :dataCriacaoInicio AND :dataCriacaoFim  
-	 *  GROUP BY DATE(p.data_criacao)
+	 *  	   p.restaurante_id = :restauranteId AND
+	 *  	   p.data_criacao between :dataCriacaoInicio AND :dataCriacaoFim AND
+	 *  	   p.status IN ('CRIADO', 'ENTREGUE')  
+	 *  GROUP BY DATE(CONVERT_TZ(p.data_criacao, '+00:00', '-03:00'))
 	 */
+	
 	@Override
-	public List<VendaDiaria> consultarVendasDiarias(VendaDiariaFilter vendaDiariaFilter) {
+	public List<VendaDiaria> consultarVendasDiarias(VendaDiariaFilter vendaDiariaFilter, String timeOffset) {
 		var builder = manager.getCriteriaBuilder();
 		var query = builder.createQuery(VendaDiaria.class); //Define o tipo de retorno da query
 		var root = query.from(Pedido.class);
 		var predicates = new ArrayList<Predicate>();
+	
+		var functionConvertTzDataCriacao = builder.function(
+				"convert_tz", 
+				Date.class, 
+				root.get("dataCriacao"),
+				builder.literal("+00:00"),
+				builder.literal(timeOffset));
 		
-		var functionDateDataCriacao = builder.function("date", Date.class, root.get("dataCriacao"));
+		var functionDateDataCriacao = builder.function(
+				"date", 
+				Date.class, 
+				functionConvertTzDataCriacao);
 		
 		var selection = builder.construct(VendaDiaria.class, 
 				functionDateDataCriacao,
