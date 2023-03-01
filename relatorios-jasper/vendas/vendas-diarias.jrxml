@@ -80,7 +80,7 @@
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
 				<textFieldExpression><![CDATA[$F{totalVendas}]]></textFieldExpression>
 			</textField>
-			<textField pattern="¤#,##0.##;¤-#,##0.00">
+			<textField pattern="¤#,##0.00;¤-#,##0.00">
 				<reportElement x="241" y="2" width="100" height="20" uuid="6dcef9e8-8290-406f-aea7-5185bb5d12e1"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
 				<textFieldExpression><![CDATA[$F{totalFaturado}]]></textFieldExpression>
