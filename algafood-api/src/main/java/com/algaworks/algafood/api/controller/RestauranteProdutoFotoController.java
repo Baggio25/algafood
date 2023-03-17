@@ -6,6 +6,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,7 +35,7 @@ public class RestauranteProdutoFotoController {
 	private FotoProdutoModelAssembler fotoProdutoModelAssembler;
 	
 	@PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public FotoProdutoModel atualizarFotot(@PathVariable Long restauranteId,
+	public FotoProdutoModel atualizarFoto(@PathVariable Long restauranteId,
 			@PathVariable Long produtoId, @Valid FotoProdutoInput fotoProdutoInput) throws IOException {
 		Produto produto = cadastroProdutoService.buscar(restauranteId, produtoId);
 		MultipartFile arquivo = fotoProdutoInput.getArquivo();
@@ -50,5 +51,10 @@ public class RestauranteProdutoFotoController {
 		return fotoProdutoModelAssembler.toModel(foto);
 	}
 
-	
+	@GetMapping
+	public FotoProdutoModel buscar(@PathVariable Long restauranteId,
+			@PathVariable Long produtoId) {
+		FotoProduto fotoProduto = catalogoFotoProdutoService.buscar(restauranteId, produtoId);
+		return fotoProdutoModelAssembler.toModel(fotoProduto);
+	}
 }
