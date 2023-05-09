@@ -10,6 +10,11 @@
       font-size: 1rem;
       padding: 10px;
     }
+    
+    a {
+      text-decoration: none;
+      color: #fff;
+    }
 
     #conteudo {
       margin-top: 10px;
@@ -21,9 +26,12 @@
 <body>
   <button id="botao" class="btn btn-primary">Listar</button>
   <button id="botaoFechar" class="btn btn-primary">Fechar Restaurante</button>
+  <button class="btn btn-primary">
+    <a href="/forma-pagamento.html">Formas de Pagamento</a>
+  </button>
   <div id="conteudo"></div>
 
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-  <script src="client.js"></script>
+  <script src="RestauranteService.js"></script>
 </body>
 </html>
